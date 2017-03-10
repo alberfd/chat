@@ -222,7 +222,7 @@ public class PestañaSala extends Tab implements Observer {
                     + "<span style=\"font-family:lucida sans unicode,lucida grande,sans-serif;\">"
                     + "<b><span style=\"color:"+sceneChat.colorToHex(mensajeChatPublico.getColorNombreUsuario())+";\">" + mensajeChatPublico.getUsuarioOrigen().getNombreUsuario() + ": " 
                     + "</span></b>" + escapeHtml(mensajeChatPublico.getMensaje()).replace("'", "\\'") + "</span></span></p>";
-            
+            System.out.println(html);
             
             sceneChat.executejQuery(webViewChatSala.getEngine(), "$('#content').append(\'" + html + "\');");
              

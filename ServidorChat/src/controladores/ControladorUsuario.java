@@ -90,7 +90,9 @@ public class ControladorUsuario extends Controlador {
                 //asignamos un color de escritura al usuario
                 HashMap<Usuario, Color> coloresAsignados;
                 coloresAsignados = sirviente.getServidorChat().getColoresAsignados();
-                coloresAsignados.put(usuarioConectado, sirviente.getServidorChat().dameColorAleatorio());
+                Color colorAleatorio = sirviente.getServidorChat().dameColorAleatorio();
+                coloresAsignados.put(usuarioConectado, colorAleatorio);
+                sirviente.getServidorChat().getColoresDisponibles().remove(colorAleatorio);
             }else{
                 mensajeLoginRespuesta.setTipoRespuestaLogin(TipoRespuestaLogin.ERROR);
                 

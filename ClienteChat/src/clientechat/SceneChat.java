@@ -40,6 +40,7 @@ import javafx.stage.Stage;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
+import mensajes.MensajeChatPrivado;
 import modelo.EstadoConexion;
 import modelo.Usuario;
 
@@ -197,7 +198,8 @@ public class SceneChat extends Scene implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         Platform.runLater(() -> {
-        Usuario usuarioRemoto = (Usuario)arg;
+        MensajeChatPrivado mensaje = (MensajeChatPrivado)arg;
+        Usuario usuarioRemoto = mensaje.getUsuarioOrigen();
         //si el mensaje es del propio usuario no hacemos nada
         if(usuarioRemoto.equals(controladorChat.getUsuarioConectado())){
             return;

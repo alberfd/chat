@@ -47,8 +47,9 @@ public class ControladorUsuario extends Controlador {
             reproductor = new MediaPlayer(sonidoConectado);
             reproductor.play();
             this.usuario = mensaje.getUsuario();
-            this.app.cambiaEscenaChat();
             this.app.getControladorChat().setUsuarioConectado(usuario);
+            this.app.cambiaEscenaChat();
+            
         }
     }
 

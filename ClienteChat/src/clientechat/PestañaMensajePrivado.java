@@ -30,6 +30,7 @@ import modelo.MensajesPrivados;
 import modelo.Usuario;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import javafx.concurrent.Worker.State;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
  *
@@ -175,11 +176,41 @@ public class PestañaMensajePrivado extends Tab implements Observer {
     public void update(Observable o, Object arg) {
         
         Platform.runLater(() -> {
-        Usuario usuario = (Usuario) arg;
-        //si el mensajes que ha entrado no es de esta pestaña ni del propio
-        //usuario que esta conectado pasamos del tema
-        if(!usuario.equals(this.usuarioRemoto) && !usuario.equals(controladorChat.getUsuarioConectado()))
+        
+        MensajeChatPrivado mensaje = (MensajeChatPrivado) arg;
+        Usuario usuarioOrigen = mensaje.getUsuarioOrigen();
+        Usuario usuarioDestino = mensaje.getUsuarioDestino();
+        
+        MensajesPrivados mensajesPrivados = (MensajesPrivados) o;
+        Iterator iterador;
+        MensajeChatPrivado mensajeChatPrivado;
+        String texto;
+            
+        
+        //si el mensajes que ha entrado no es de esta pestaña ni enviado por nosotros mismos pasamos del tema
+        if(!usuarioOrigen.equals(this.usuarioRemoto) && !usuarioOrigen.equals(controladorChat.getUsuarioConectado()) )
             return;
+        
+        //si el mensaje es nuestro lo mostramos solo si esta pestaña coincide con el usuario destino
+        if(usuarioOrigen.equals(controladorChat.getUsuarioConectado())){
+            if(this.usuarioRemoto.equals(usuarioDestino)){
+                iterador = mensajesPrivados.getMensajesPrivados().get(usuarioOrigen).iterator();
+                while(iterador.hasNext()){
+                    mensajeChatPrivado = (MensajeChatPrivado) iterador.next();
+                    iterador.remove();
+                    escribeMensaje(mensajeChatPrivado);
+
+
+                    texto = mensajeChatPrivado.getUsuarioOrigen().getNombreUsuario() + ": " +
+                            mensajeChatPrivado.getMensaje();
+                    this.textAreaMensajePrivado.appendText(texto + "\n");
+                }
+            }
+            return;
+        }
+        
+        
+        
         
         if(!pestañaSeleccionada()){
             this.setText("* " + this.usuarioRemoto.getNombreUsuario());
@@ -189,19 +220,14 @@ public class PestañaMensajePrivado extends Tab implements Observer {
             //modificamos el listview de la pestaña de la sala poniendo un asterisco
             //en el usuario que envio el mensaje
             if(pestañaSala != null)
-                pestañaSala.incrementaMensajesLeidosUsuario(usuario);
+                pestañaSala.incrementaMensajesLeidosUsuario(usuarioOrigen);
             
         }
         
-        //escribimos los mensajes que haya en la cola en el textarea
-        MensajesPrivados mensajesPrivados = (MensajesPrivados) o;
-        Iterator iterador;
-        MensajeChatPrivado mensajeChatPrivado;
-        String texto;
-        
+        //escribimos los mensajes que haya en la cola en el textarea:
         //si el mensaje que entra es del propio usuario tomamos los datos correspondientes
-        //a ese usuario. Sino tomamos los datos del modelo dell usuario remoto
-        if(usuario.equals(controladorChat.getUsuarioConectado()))
+        //a ese usuario. Sino tomamos los datos del modelo del usuario remoto
+        if(usuarioOrigen.equals(controladorChat.getUsuarioConectado()))
             iterador = mensajesPrivados.getMensajesPrivados().get(controladorChat.getUsuarioConectado()).iterator();
         else
             iterador = mensajesPrivados.getMensajesPrivados().get(usuarioRemoto).iterator();

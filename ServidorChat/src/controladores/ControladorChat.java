@@ -45,8 +45,7 @@ public class ControladorChat extends Controlador{
         Usuario usuarioDestino = mensaje.getUsuarioDestino();
         Usuario usuarioOrigen = mensaje.getUsuarioOrigen();
         Color color = getColorUsuario(mensaje.getUsuarioOrigen());
-        if(color == null)
-            System.out.print("el color es nulo");
+        
         mensaje.setColorNombreUsuario(color);
         
         //obtenemos el sirviente escritor que corresponde al usuario destino en el servidor central

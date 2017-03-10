@@ -64,13 +64,13 @@ public class SirvienteLector extends Sirviente implements Runnable {
                       
         } catch (IOException ex) {
             Logger.getLogger(Sirviente.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("pedo");
+            
             
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Sirviente.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("culo");
+            
         }finally{
-            System.out.println("caca");
+            
            desconectar();
            servidorChat.eliminaCliente(this.usuario_);
            controladorUsuario.usuarioDesconectado(usuario_);

@@ -65,7 +65,8 @@ public class ServidorChat {
             //hacemos que los dos sirvientes se conozcan entre ellos
             sirvienteEscritor.setSirivienteLector(sirvienteLector);
             sirvienteLector.setSirvienteEscritor(sirvienteEscritor);
-
+               
+        
         }
     }
     
@@ -92,12 +93,38 @@ public class ServidorChat {
         
         //solo si no quedan usuarios conectados con el mismo color que el usuario
         //que se acaba de desconectar lo agragamos a la lista de colores disponibles
-        if(!coloresAsignados.containsValue(colorUsuario))
-            coloresDisponibles.add(colorUsuario);
+        
+        
+        
         
 
         System.out.println("Numero de sirvientes lectores " + sirvientesLector.size());
         System.out.println("Numero de sirvientes escritores " + sirvientesEscritor.size());
+        
+        System.out.println("COlor del usuario que se descoencta");
+        System.out.println(colorUsuario.toString());
+        
+        System.out.println("colores asignados");
+        if(!coloresAsignados.containsValue(colorUsuario)){
+            System.out.println("caca");
+            coloresDisponibles.add(colorUsuario);
+        }
+        
+        System.out.println("colores asignados");
+        for(Color color : coloresAsignados.values()){
+            System.out.println(color.toString());
+        }
+        
+        System.out.println("colores disponibles");
+        for(Color color : coloresDisponibles){
+            System.out.println(color.toString());
+        }
+        
+        System.out.println("Colores");
+        for(Color color : colores){
+            System.out.println(color.toString());
+        }
+        
     }
     
     public HashMap<Usuario,SirvienteEscritor> getSirvientesEscritor(){

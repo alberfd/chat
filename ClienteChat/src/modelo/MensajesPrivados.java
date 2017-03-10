@@ -48,7 +48,7 @@ public class MensajesPrivados extends Observable{
         }
         
         this.setChanged();
-        this.notifyObservers(mensaje.getUsuarioOrigen());
+        this.notifyObservers(mensaje);
     }
     
     
