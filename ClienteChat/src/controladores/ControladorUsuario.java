@@ -11,6 +11,7 @@ import clientechat.SirvienteEscritor;
 import java.io.File;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import mensajes.MensajeColorChat;
 import mensajes.MensajeLogin;
 import mensajes.MensajeLoginRespuesta;
 import modelo.TipoRespuestaLogin;
@@ -87,6 +88,8 @@ public class ControladorUsuario extends Controlador {
         sirvienteEscritor.insertaMensaje(mensajeLogin);
         
     }
+    
+    
     
     
     

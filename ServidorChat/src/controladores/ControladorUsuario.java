@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.logging.Level;
@@ -25,6 +26,7 @@ import javax.mail.internet.MimeMessage;
 import mappers.DataMapperUsuario;
 import mensajes.Mensaje;
 import mensajes.MensajeActualizacionUsuariosConectados;
+import mensajes.MensajeColorChat;
 import mensajes.MensajeLogin;
 import mensajes.MensajeLoginRespuesta;
 import mensajes.MensajeRegistro;
@@ -34,6 +36,7 @@ import modelo.EstadoConexion;
 import modelo.TipoRespuestaLogin;
 import modelo.TipoRespuestaRegistro;
 import modelo.Usuario;
+import servidorchat.ServidorChat;
 import servidorchat.Sirviente;
 import servidorchat.SirvienteEscritor;
 import servidorchat.SirvienteLector;
@@ -46,9 +49,12 @@ public class ControladorUsuario extends Controlador {
     
     DataMapperUsuario dataMapperUsuario;
     
-    public ControladorUsuario(Sirviente sirviente){
-        super(sirviente);
-                
+    ControladorChat controladorChat;
+    
+    public ControladorUsuario(ServidorChat servidor,
+            SirvienteEscritor sirvienteEscritor, SirvienteLector sirvienteLector){
+        super(servidor, sirvienteEscritor, sirvienteLector);
+        
         this.dataMapperUsuario = new DataMapperUsuario();
     }
     
@@ -65,41 +71,45 @@ public class ControladorUsuario extends Controlador {
                 mensajeLoginRespuesta.setUsuario(usuarioConectado);
                 
                 //registramos al usuario que se acaba de conectar en el servidor central
-                sirviente.getServidorChat().registraCliente((SirvienteLector) sirviente, ((SirvienteLector) sirviente).getSirvienteEscritor(), usuarioConectado);
+                servidorChat.registraCliente(sirvienteLector, sirvienteEscritor, usuarioConectado);
                 
-                //asignamos a nuestros sirvientes el usuario que se acaba de conectar
-                sirviente.setUsuario_(usuarioConectado);
-                ((SirvienteLector) sirviente).getSirvienteEscritor().setUsuario_(usuarioConectado);
-
+                //hacemos que el controlador conecta al nuevo cliente que se conecto
+                usuario_ = usuarioConectado;
+                controladorChat.setUsuario_(usuarioConectado);
+                
                 //Construimos el mensaje con la lista de los usuarios conectados
                 MensajeUsuariosConectados mensajeUsuariosConectados = new MensajeUsuariosConectados();
                 //obtenemos todos los objetos usuarios logeados en el servidor
                 ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
-                for(Usuario u : sirviente.getServidorChat().getSirvientesLector().keySet()){
+                for(Usuario u : servidorChat.getSirvientesLector().keySet()){
                     usuarios.add(u);
                 }
                 //asignamos todos los usuarios conectados al sistema al mensaje
                 mensajeUsuariosConectados.setUsuarios(usuarios);
 
                 //Informamos al usuario que se acaba de conectar de los usuarios que ya habia conectados
-                ((SirvienteLector) sirviente).getSirvienteEscritor().insertaMensaje(mensajeUsuariosConectados);
+                sirvienteEscritor.insertaMensaje(mensajeUsuariosConectados);
                 
                 //informamos al resto de usuarios de que ha entrado un nuevo usuario
-                this.usuarioConectado(usuarioConectado);
+                this.usuarioConectado();
                 
                 //asignamos un color de escritura al usuario
                 HashMap<Usuario, Color> coloresAsignados;
-                coloresAsignados = sirviente.getServidorChat().getColoresAsignados();
-                Color colorAleatorio = sirviente.getServidorChat().dameColorAleatorio();
+                coloresAsignados = servidorChat.getColoresAsignados();
+                Color colorAleatorio = servidorChat.dameColorAleatorio();
                 coloresAsignados.put(usuarioConectado, colorAleatorio);
-                sirviente.getServidorChat().getColoresDisponibles().remove(colorAleatorio);
+                servidorChat.getColoresDisponibles().remove(colorAleatorio);
+                
+                //enviamos el color al usuario que se acaba de conectar
+                this.enviaMensajeColor(usuarioConectado, colorAleatorio);
+                
             }else{
                 mensajeLoginRespuesta.setTipoRespuestaLogin(TipoRespuestaLogin.ERROR);
                 
             }
                 
             //enviamos el mensaje de respuesta al usuario
-            ((SirvienteLector)sirviente).getSirvienteEscritor().insertaMensaje(mensajeLoginRespuesta);
+            sirvienteEscritor.insertaMensaje(mensajeLoginRespuesta);
             
             
         } catch (SQLException ex) {
@@ -107,6 +117,12 @@ public class ControladorUsuario extends Controlador {
         }
         
     
+    }
+    
+    private void enviaMensajeColor(Usuario usuario, Color color){
+        MensajeColorChat mensajeColorChat = new MensajeColorChat();
+        mensajeColorChat.setColor(color);
+        servidorChat.getSirvientesEscritor().get(usuario).insertaMensaje(mensajeColorChat);
     }
     
     public void registro(MensajeRegistro mensaje){
@@ -119,7 +135,7 @@ public class ControladorUsuario extends Controlador {
             mensajeRegistroRespuesta.setTextoRespuesta("Las contraseñas no son iguales");
             
             
-            ((SirvienteLector)sirviente).getSirvienteEscritor().insertaMensaje(mensajeRegistroRespuesta);
+            sirvienteEscritor.insertaMensaje(mensajeRegistroRespuesta);
                 
             
             return;
@@ -134,7 +150,7 @@ public class ControladorUsuario extends Controlador {
                 mensajeRegistroRespuesta.setTipoRespuesta(TipoRespuestaRegistro.ERROR);
                 mensajeRegistroRespuesta.setTextoRespuesta("El usuario ya existe");
                 
-                ((SirvienteLector)sirviente).getSirvienteEscritor().insertaMensaje(mensajeRegistroRespuesta);
+                sirvienteEscritor.insertaMensaje(mensajeRegistroRespuesta);
                 return;
             }
         } catch (SQLException ex) {
@@ -147,7 +163,7 @@ public class ControladorUsuario extends Controlador {
                 mensajeRegistroRespuesta.setTipoRespuesta(TipoRespuestaRegistro.ERROR);
                 mensajeRegistroRespuesta.setTextoRespuesta("Error al introducir el usuario en base de datos");
                 
-                ((SirvienteLector)sirviente).getSirvienteEscritor().insertaMensaje(mensajeRegistroRespuesta);
+                sirvienteEscritor.insertaMensaje(mensajeRegistroRespuesta);
                 return;
             }
         } catch (SQLException ex) {
@@ -157,7 +173,7 @@ public class ControladorUsuario extends Controlador {
         mensajeRegistroRespuesta.setTipoRespuesta(TipoRespuestaRegistro.OK);
         mensajeRegistroRespuesta.setTextoRespuesta("Usuario registrado correctamente");
         
-        ((SirvienteLector)sirviente).getSirvienteEscritor().insertaMensaje(mensajeRegistroRespuesta);
+        sirvienteEscritor.insertaMensaje(mensajeRegistroRespuesta);
         
         enviaCorreoConfirmacion(usuario);
     }
@@ -166,52 +182,52 @@ public class ControladorUsuario extends Controlador {
         MensajeUsuariosConectados mensaje = new MensajeUsuariosConectados();
         ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
         
-        for(Usuario usuario : sirviente.getServidorChat().getSirvientesLector().keySet() ){
+        for(Usuario usuario : servidorChat.getSirvientesLector().keySet() ){
             usuarios.add(usuario);
         }
         
         mensaje.setUsuarios(usuarios);
         
-        for(SirvienteEscritor sirvienteEscritor : sirviente.getServidorChat().getSirvientesEscritor().values() ){
+        for(SirvienteEscritor sirvienteEscritor : servidorChat.getSirvientesEscritor().values() ){
             sirvienteEscritor.insertaMensaje(mensaje);
         }
     }
     
-    public void usuarioDesconectado(Usuario usuario){
+    public void usuarioDesconectado(){
         //Si el usuario no estaba conectado no hacemos nada
-        if(usuario == null)
+        if(this.usuario_ == null)
             return;
         
         //construimos un mensaje de actualizacion
         MensajeActualizacionUsuariosConectados mensaje = new MensajeActualizacionUsuariosConectados();
-        mensaje.setUsuario(usuario);
+        mensaje.setUsuario(this.usuario_);
         mensaje.setEstadoConexion(EstadoConexion.DESCONECTADO);
         
         
         //informamos al resto de usuarios de que se ha desconectado el usuario
-        for(SirvienteEscritor sirvienteEscritor : sirviente.getServidorChat().getSirvientesEscritor().values()){
+        for(SirvienteEscritor sirvienteEscritor : servidorChat.getSirvientesEscritor().values()){
             sirvienteEscritor.insertaMensaje(mensaje);
         }
   
         
     }
     
-    public void usuarioConectado(Usuario usuario){
+    public void usuarioConectado(){
         
-        if(usuario == null)
+        if(this.usuario_ == null)
             return;
         
         //construimos un mensaje de actualizacion
         MensajeActualizacionUsuariosConectados mensaje = new MensajeActualizacionUsuariosConectados();
-        mensaje.setUsuario(usuario);
+        mensaje.setUsuario(this.usuario_);
         mensaje.setEstadoConexion(EstadoConexion.CONECTADO);
         
         
         //informamos al resto de usuarios de que se ha conectado el usuario
-        for(SirvienteEscritor sirvienteEscritor : sirviente.getServidorChat().getSirvientesEscritor().values()){
+        for(Map.Entry<Usuario, SirvienteEscritor> entry : servidorChat.getSirvientesEscritor().entrySet()){
             
-            if(! sirvienteEscritor.getUsuario_().equals(usuario))
-                sirvienteEscritor.insertaMensaje(mensaje);
+            if(! entry.getKey().equals(usuario_))
+                entry.getValue().insertaMensaje(mensaje);
         }
     }
     
@@ -274,6 +290,18 @@ public class ControladorUsuario extends Controlador {
         }
         
         return result;
+    }
+    
+    public void eliminaCliente(){
+        servidorChat.eliminaCliente(this.usuario_);
+    }
+
+    public ControladorChat getControladorChat() {
+        return controladorChat;
+    }
+
+    public void setControladorChat(ControladorChat controladorChat) {
+        this.controladorChat = controladorChat;
     }
     
     

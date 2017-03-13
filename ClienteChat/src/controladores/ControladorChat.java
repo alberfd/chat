@@ -8,9 +8,9 @@ package controladores;
 import clientechat.CellUsuario;
 import clientechat.SceneChat;
 import clientechat.SirvienteEscritor;
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -20,11 +20,11 @@ import javax.sound.sampled.Clip;
 import mensajes.MensajeActualizacionUsuariosConectados;
 import mensajes.MensajeChatPrivado;
 import mensajes.MensajeChatPublico;
+import mensajes.MensajeColorChat;
 import mensajes.MensajeUsuariosConectados;
 import modelo.MensajesPrivados;
 import modelo.MensajesPublicos;
 import modelo.Usuario;
-import sun.applet.Main;
 
 /**
  *
@@ -37,6 +37,7 @@ public class ControladorChat extends Controlador {
     MensajesPublicos mensajesPublicos;
     
     Usuario usuarioConectado;
+    Color colorChat;
     SirvienteEscritor sirvienteEscritor;
     
     SceneChat sceneChat;
@@ -104,6 +105,14 @@ public class ControladorChat extends Controlador {
         this.usuarioConectado = usuarioConectado;
     }
 
+    public Color getColorChat() {
+        return colorChat;
+    }
+
+    public void setColorChat(Color colorChat) {
+        this.colorChat = colorChat;
+    }
+
     public SirvienteEscritor getSirvienteEscritor() {
         return sirvienteEscritor;
     }
@@ -112,13 +121,12 @@ public class ControladorChat extends Controlador {
         this.sirvienteEscritor = sirvienteEscritor;
     }
     
-    
-    
     public void procesaMensajePublicoSalida(String mensaje){
         //construimos el mensaje publico
         MensajeChatPublico mensajeChatPublico = new MensajeChatPublico(mensaje);
         
         mensajeChatPublico.setUsuarioOrigen(usuarioConectado);
+        mensajeChatPublico.setColorNombreUsuario(colorChat);
         
         sirvienteEscritor.insertaMensaje(mensajeChatPublico);
     }
@@ -163,4 +171,8 @@ public class ControladorChat extends Controlador {
         sceneChat.actualizacionUsuario(mensaje.getUsuario(), mensaje.getEstadoConexion());
     }
  
+    public void procesaMensajeColorChat(MensajeColorChat mensaje){
+        this.colorChat = mensaje.getColor();
+    }
+    
 }

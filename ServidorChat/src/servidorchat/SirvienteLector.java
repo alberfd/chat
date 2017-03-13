@@ -29,8 +29,8 @@ public class SirvienteLector extends Sirviente implements Runnable {
     
     SirvienteEscritor sirvienteEscritor;
     
-    public SirvienteLector(ServidorChat servidorChat, Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
-        super(servidorChat, clientSocket, oos, ois);
+    public SirvienteLector(Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
+        super(clientSocket, oos, ois, null, null);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SirvienteLector extends Sirviente implements Runnable {
                 //para los usuarios que no esten logeados
                 if(!(mensaje instanceof MensajeRegistro) && 
                         !(mensaje instanceof MensajeLogin) &&
-                            usuario_ == null){
+                            controladorUsuario.getUsuario_() == null){
                     continue;
                 }
                 
@@ -58,7 +58,7 @@ public class SirvienteLector extends Sirviente implements Runnable {
                 }
             }
             desconectar();
-            servidorChat.eliminaCliente(this.usuario_);
+            controladorUsuario.eliminaCliente();
             
             System.out.println("Hemos salido del sirviente");
                       
@@ -72,8 +72,8 @@ public class SirvienteLector extends Sirviente implements Runnable {
         }finally{
             
            desconectar();
-           servidorChat.eliminaCliente(this.usuario_);
-           controladorUsuario.usuarioDesconectado(usuario_);
+           controladorUsuario.eliminaCliente();
+           controladorUsuario.usuarioDesconectado();
         }
     }
 

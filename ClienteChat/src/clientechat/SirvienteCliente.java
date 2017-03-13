@@ -21,6 +21,7 @@ import mensajes.Mensaje;
 import mensajes.MensajeActualizacionUsuariosConectados;
 import mensajes.MensajeChatPrivado;
 import mensajes.MensajeChatPublico;
+import mensajes.MensajeColorChat;
 import mensajes.MensajeLogin;
 import mensajes.MensajeLoginRespuesta;
 import mensajes.MensajeRegistro;
@@ -87,6 +88,9 @@ public class SirvienteCliente extends Observable implements Runnable {
                             (MensajeActualizacionUsuariosConectados) mensaje;
                     controladorChat.procesaMensajeActualizacionUsuariosConectados(mensajeActualizacionUsuariosConectados);
                             
+                }else if(mensaje instanceof MensajeColorChat){
+                    MensajeColorChat mensajeColorChat = (MensajeColorChat) mensaje;
+                    controladorChat.procesaMensajeColorChat(mensajeColorChat);
                 }
             }
             desconectar();

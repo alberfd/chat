@@ -12,9 +12,7 @@ import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
-import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -22,14 +20,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javax.swing.event.ChangeListener;
 import mensajes.MensajeChatPrivado;
+import static modelo.HTMLUtils.generaHTMLMensajePrivado;
+import static modelo.HTMLUtils.generaHTMLMensajePrivadoPropio;
 import modelo.MensajesPrivados;
 import modelo.Usuario;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-import javafx.concurrent.Worker.State;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
@@ -117,6 +113,11 @@ public class PestañaMensajePrivado extends Tab implements Observer {
         mensajeChatPrivado.setUsuarioOrigen(controladorChat.getUsuarioConectado());
         mensajeChatPrivado.setUsuarioDestino(this.getUsuarioRemoto());
         mensajeChatPrivado.setMensaje(textFieldMensajePrivado.getText());
+        mensajeChatPrivado.setColorNombreUsuario(controladorChat.getColorChat());
+        
+        //mostramos el mensaje en el webview
+        escribeMensaje(mensajeChatPrivado);
+        
         //le decimos al controlador que procese el mensaje privado de salida
         controladorChat.procesaMensajePrivadoSalida(mensajeChatPrivado);
         
@@ -179,38 +180,15 @@ public class PestañaMensajePrivado extends Tab implements Observer {
         
         MensajeChatPrivado mensaje = (MensajeChatPrivado) arg;
         Usuario usuarioOrigen = mensaje.getUsuarioOrigen();
-        Usuario usuarioDestino = mensaje.getUsuarioDestino();
         
         MensajesPrivados mensajesPrivados = (MensajesPrivados) o;
         Iterator iterador;
         MensajeChatPrivado mensajeChatPrivado;
-        String texto;
             
         
-        //si el mensajes que ha entrado no es de esta pestaña ni enviado por nosotros mismos pasamos del tema
-        if(!usuarioOrigen.equals(this.usuarioRemoto) && !usuarioOrigen.equals(controladorChat.getUsuarioConectado()) )
+        //si el mensajes que ha entrado no es de esta pestaña pasamos del tema
+        if(!usuarioOrigen.equals(this.usuarioRemoto))
             return;
-        
-        //si el mensaje es nuestro lo mostramos solo si esta pestaña coincide con el usuario destino
-        if(usuarioOrigen.equals(controladorChat.getUsuarioConectado())){
-            if(this.usuarioRemoto.equals(usuarioDestino)){
-                iterador = mensajesPrivados.getMensajesPrivados().get(usuarioOrigen).iterator();
-                while(iterador.hasNext()){
-                    mensajeChatPrivado = (MensajeChatPrivado) iterador.next();
-                    iterador.remove();
-                    escribeMensaje(mensajeChatPrivado);
-
-
-                    texto = mensajeChatPrivado.getUsuarioOrigen().getNombreUsuario() + ": " +
-                            mensajeChatPrivado.getMensaje();
-                    this.textAreaMensajePrivado.appendText(texto + "\n");
-                }
-            }
-            return;
-        }
-        
-        
-        
         
         if(!pestañaSeleccionada()){
             this.setText("* " + this.usuarioRemoto.getNombreUsuario());
@@ -224,23 +202,14 @@ public class PestañaMensajePrivado extends Tab implements Observer {
             
         }
         
-        //escribimos los mensajes que haya en la cola en el textarea:
-        //si el mensaje que entra es del propio usuario tomamos los datos correspondientes
-        //a ese usuario. Sino tomamos los datos del modelo del usuario remoto
-        if(usuarioOrigen.equals(controladorChat.getUsuarioConectado()))
-            iterador = mensajesPrivados.getMensajesPrivados().get(controladorChat.getUsuarioConectado()).iterator();
-        else
-            iterador = mensajesPrivados.getMensajesPrivados().get(usuarioRemoto).iterator();
+        //escribimos los mensajes que haya en la cola en el webview:
+        iterador = mensajesPrivados.getMensajesPrivados().get(usuarioRemoto).iterator();
         
         while(iterador.hasNext()){
             mensajeChatPrivado = (MensajeChatPrivado) iterador.next();
             iterador.remove();
             escribeMensaje(mensajeChatPrivado);
-            
-            
-            texto = mensajeChatPrivado.getUsuarioOrigen().getNombreUsuario() + ": " +
-                    mensajeChatPrivado.getMensaje();
-            this.textAreaMensajePrivado.appendText(texto + "\n");
+          
         }
         });
         
@@ -258,16 +227,12 @@ public class PestañaMensajePrivado extends Tab implements Observer {
     
     private void escribeMensaje(MensajeChatPrivado mensaje){
         
-        String html = "<p ";
+        String html;
         if(mensaje.getUsuarioOrigen().equals(controladorChat.getUsuarioConectado()))
-            html += "style=\"text-align: right;\"";
-        
-        html += "><span style=\"font-size:14px;\">"
-                    + "<span style=\"font-family:lucida sans unicode,lucida grande,sans-serif;\">"
-                    + "<span style=\"color:"+ sceneChat.colorToHex(mensaje.getColorNombreUsuario()) +";font-weight: bold;\">" + mensaje.getUsuarioOrigen().getNombreUsuario() + ": " 
-                    + "</span>" + escapeHtml(mensaje.getMensaje()).replace("'", "\\'") + "</span></span></p>";
-            
-            
+            html = generaHTMLMensajePrivadoPropio(mensaje);
+        else
+            html = generaHTMLMensajePrivado(mensaje);
+           
         sceneChat.executejQuery(webViewMensajesPrivados.getEngine(), "$('#content').append(\'" + html + "\');");
              
         sceneChat.executejQuery(webViewMensajesPrivados.getEngine(), "$(\"html, body\").animate({ scrollTop: $(document).height()-$(window).height() }, 100);");

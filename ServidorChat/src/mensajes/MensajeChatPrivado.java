@@ -5,6 +5,7 @@
  */
 package mensajes;
 
+import java.awt.Color;
 import java.io.Serializable;
 import modelo.Usuario;
 
@@ -18,7 +19,7 @@ public class MensajeChatPrivado extends Mensaje implements Serializable {
     Usuario usuarioDestino;
     
     String mensaje;
-    
+
     
     
     public MensajeChatPrivado(){
@@ -48,6 +49,8 @@ public class MensajeChatPrivado extends Mensaje implements Serializable {
     public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
     }
+
+
     
     
     

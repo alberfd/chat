@@ -5,6 +5,8 @@
  */
 package servidorchat;
 
+import controladores.ControladorChat;
+import controladores.ControladorUsuario;
 import java.awt.Color;
 import mensajes.Mensaje;
 import java.io.IOException;
@@ -54,18 +56,30 @@ public class ServidorChat {
             fromClientSocket = serverSocket.accept();
             ObjectOutputStream oos = new ObjectOutputStream(fromClientSocket.getOutputStream());
             ObjectInputStream ois = new ObjectInputStream(fromClientSocket.getInputStream());
-            SirvienteLector sirvienteLector = new SirvienteLector(this, fromClientSocket, oos, ois);
-            SirvienteEscritor sirvienteEscritor = new SirvienteEscritor(this, fromClientSocket, oos, ois);
+            
+            //creamos los sirvientes
+            SirvienteLector sirvienteLector = new SirvienteLector(fromClientSocket, oos, ois);
+            SirvienteEscritor sirvienteEscritor = new SirvienteEscritor(fromClientSocket, oos, ois);
+            
+            
+            //creamos los controladores
+            ControladorUsuario controladorUsuario = new ControladorUsuario(this, sirvienteEscritor, sirvienteLector);
+            ControladorChat controladorChat = new ControladorChat(this, sirvienteEscritor, sirvienteLector);
+            
+            //hacemos que los controladores se conozcan entre ellos
+            controladorUsuario.setControladorChat(controladorChat);
+            controladorChat.setControladorUsuario(controladorUsuario);
+            
+            //asignamos los controladores a los sirvientes
+            sirvienteEscritor.setControladorChat(controladorChat);
+            sirvienteEscritor.setControladorUsuario(controladorUsuario);
+            sirvienteLector.setControladorChat(controladorChat);
+            sirvienteLector.setControladorUsuario(controladorUsuario);
             
             //arrancamos los dos hilos que se encargaran de atender al usuario
             //uno para leer y el otro para escribir en el socket
             arrancaSirviente(sirvienteEscritor);
-            arrancaSirviente(sirvienteLector);
-            
-            //hacemos que los dos sirvientes se conozcan entre ellos
-            sirvienteEscritor.setSirivienteLector(sirvienteLector);
-            sirvienteLector.setSirvienteEscritor(sirvienteEscritor);
-               
+            arrancaSirviente(sirvienteLector);   
         
         }
     }

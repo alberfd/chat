@@ -25,8 +25,8 @@ public class SirvienteEscritor extends Sirviente implements Runnable {
     SirvienteLector sirivienteLector;
     Queue<Mensaje> mensajes;
     
-    public SirvienteEscritor(ServidorChat servidorChat, Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
-        super(servidorChat, clientSocket, oos, ois);
+    public SirvienteEscritor(Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
+        super(clientSocket, oos, ois, null, null);
         
         mensajes = new LinkedList<Mensaje>();
     }

@@ -18,8 +18,10 @@ import java.util.logging.Logger;
 import mensajes.MensajeChatPrivado;
 import mensajes.MensajeChatPublico;
 import modelo.Usuario;
+import servidorchat.ServidorChat;
 import servidorchat.Sirviente;
 import servidorchat.SirvienteEscritor;
+import servidorchat.SirvienteLector;
 
 /**
  *
@@ -27,47 +29,50 @@ import servidorchat.SirvienteEscritor;
  */
 public class ControladorChat extends Controlador{
     
+    ControladorUsuario controladorUsuario;
     
-    public ControladorChat(Sirviente sirviente){
-        super(sirviente);
+    public ControladorChat(ServidorChat servidor,
+            SirvienteEscritor sirvienteEscritor, SirvienteLector sirvienteLector){
+        super(servidor, sirvienteEscritor, sirvienteLector);
             
     }
     
     public void mensajeChatPublico(MensajeChatPublico mensaje){
-        Color color = getColorUsuario(mensaje.getUsuarioOrigen());
-        mensaje.setColorNombreUsuario(color);
-        for(SirvienteEscritor sirvienteEscritor : sirviente.getServidorChat().getSirvientesEscritor().values()){
-            sirvienteEscritor.insertaMensaje(mensaje);
+        
+        Usuario usuarioOrigen = mensaje.getUsuarioOrigen();
+        
+        System.out.println("Estamos aqui lo cual indica que no esta del todo mal");
+        //enviamos el mensaje publico a todos menos al que envio el mensaje
+        for(Map.Entry<Usuario, SirvienteEscritor> entry : this.servidorChat.getSirvientesEscritor().entrySet()){
+            if(!entry.getKey().equals(usuarioOrigen)){
+                System.out.println("Estamos enviando");
+                entry.getValue().insertaMensaje(mensaje);
+            }
         }  
     }
     
     public void mensajeChatPrivado(MensajeChatPrivado mensaje){
         Usuario usuarioDestino = mensaje.getUsuarioDestino();
-        Usuario usuarioOrigen = mensaje.getUsuarioOrigen();
-        Color color = getColorUsuario(mensaje.getUsuarioOrigen());
-        
-        mensaje.setColorNombreUsuario(color);
-        
+       
         //obtenemos el sirviente escritor que corresponde al usuario destino en el servidor central
         //y le enviamos el mensaje
-        SirvienteEscritor sirvienteEscritor = sirviente.getServidorChat().getSirvientesEscritor().get(usuarioDestino);
+        SirvienteEscritor sirvienteEscritor = servidorChat.getSirvientesEscritor().get(usuarioDestino);
         sirvienteEscritor.insertaMensaje(mensaje);
-        //obtenemos el sirviente escritor que corresponde al usuario origen en el servidor central
-        //y le enviamos el mensaje
-        sirvienteEscritor = sirviente.getServidorChat().getSirvientesEscritor().get(usuarioOrigen);
-        sirvienteEscritor.insertaMensaje(mensaje);
-        
-        
+
     }
     
     private Color getColorUsuario(Usuario usuario){
-        return sirviente.getServidorChat().getColoresAsignados().get(usuario);
+        return servidorChat.getColoresAsignados().get(usuario);
+    }
+
+    public ControladorUsuario getControladorUsuario() {
+        return controladorUsuario;
+    }
+
+    public void setControladorUsuario(ControladorUsuario controladorUsuario) {
+        this.controladorUsuario = controladorUsuario;
     }
     
     
     
-   
-        
-        
- 
 }

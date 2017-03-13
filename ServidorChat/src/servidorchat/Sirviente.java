@@ -28,30 +28,28 @@ import modelo.Usuario;
 public abstract class Sirviente implements Runnable {
     
     Socket clientSocket;
-    ServidorChat servidorChat;
+    
     ObjectOutputStream oos;
     ObjectInputStream ois;
     ControladorUsuario controladorUsuario;
     ControladorChat controladorChat;
-    Usuario usuario_;
     
-    public Sirviente(ServidorChat servidorChat, Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
-        this.servidorChat = servidorChat;
+    
+    public Sirviente(Socket clientSocket, ObjectOutputStream oos, ObjectInputStream ois, 
+            ControladorUsuario controladorUsuario, ControladorChat controladorChat) throws IOException{
         this.clientSocket = clientSocket;
         
         this.oos = oos;
         this.ois = ois;
         
-        controladorUsuario = new ControladorUsuario(this);
-        controladorChat = new ControladorChat(this);
+        this.controladorUsuario = controladorUsuario;
+        this.controladorChat = controladorChat;
+        
+        
     }
     
     public Socket getClientSocket() {
         return clientSocket;
-    }
-
-    public ServidorChat getServidorChat() {
-        return servidorChat;
     }
 
     public ObjectOutputStream getOos() {
@@ -62,13 +60,23 @@ public abstract class Sirviente implements Runnable {
         return ois;
     }
 
-    public Usuario getUsuario_() {
-        return usuario_;
+    public ControladorUsuario getControladorUsuario() {
+        return controladorUsuario;
     }
 
-    public void setUsuario_(Usuario usuario_) {
-        this.usuario_ = usuario_;
+    public void setControladorUsuario(ControladorUsuario controladorUsuario) {
+        this.controladorUsuario = controladorUsuario;
     }
+
+    public ControladorChat getControladorChat() {
+        return controladorChat;
+    }
+
+    public void setControladorChat(ControladorChat controladorChat) {
+        this.controladorChat = controladorChat;
+    }
+    
+    
 
     public void desconectar(){
         try {

@@ -27,6 +27,9 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import mensajes.MensajeChatPublico;
 import modelo.EstadoConexion;
+import static modelo.HTMLUtils.generaHTMLInicialSala;
+import static modelo.HTMLUtils.generaHTMLMensajePublico;
+import static modelo.HTMLUtils.generaHTMLMensajePublicoPropio;
 import modelo.MensajesPublicos;
 import modelo.Usuario;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
@@ -59,17 +62,7 @@ public class PestañaSala extends Tab implements Observer {
         textFieldMensajePublico = new TextField();
         textAreaPublico = new TextArea();
         webViewChatSala = new WebView();
-        webViewChatSala.getEngine().loadContent("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                    "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
-                    "<head>\n" +
-                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n" +
-                    "<title>Documento sin título</title>\n" +
-                    "</head>\n" +
-                    "\n" +
-                    "<body id=\"content\">\n" +
-                    " \n" +
-                    "</body>\n" +
-                    "</html>");
+        webViewChatSala.getEngine().loadContent(generaHTMLInicialSala());
         sceneChat.executejQuery(webViewChatSala.getEngine(), "$(document)");
 
         listViewUsuarios = new ListView<>();
@@ -189,6 +182,16 @@ public class PestañaSala extends Tab implements Observer {
         if(textFieldMensajePublico.getText().equals(""))
             return;
         
+        //escribimos el mensaje en el webview
+        //String html = "<p><span style=\"font-size:14px;font-family: arial,sans-serif;\"><b>hola</b>hola</span></p>";
+        String html = generaHTMLMensajePublicoPropio(controladorChat.getColorChat(), controladorChat.getUsuarioConectado().getNombreUsuario(),
+                textFieldMensajePublico.getText());
+  
+   
+        sceneChat.executejQuery(webViewChatSala.getEngine(), "$('#content').append(\'" + html + "\');");
+             
+        sceneChat.executejQuery(webViewChatSala.getEngine(), "$(\"html, body\").animate({ scrollTop: $(document).height()-$(window).height() }, 100);");
+        
         //le decimos al controlador que se desea enviar un nuevo mensaje publico
         controladorChat.procesaMensajePublicoSalida(textFieldMensajePublico.getText());
         
@@ -215,18 +218,14 @@ public class PestañaSala extends Tab implements Observer {
         iterador = mensajesPublicos.getMensajesPublicos().iterator();
         
         
-            while(iterador.hasNext()){
+        while(iterador.hasNext()){
             mensajeChatPublico = mensajesPublicos.getMensajesPublicos().poll();
             
-            html = "<p><span style=\"font-size:14px;\">"
-                    + "<span style=\"font-family:lucida sans unicode,lucida grande,sans-serif;\">"
-                    + "<b><span style=\"color:"+sceneChat.colorToHex(mensajeChatPublico.getColorNombreUsuario())+";\">" + mensajeChatPublico.getUsuarioOrigen().getNombreUsuario() + ": " 
-                    + "</span></b>" + escapeHtml(mensajeChatPublico.getMensaje()).replace("'", "\\'") + "</span></span></p>";
-            System.out.println(html);
+            html = generaHTMLMensajePublico(mensajeChatPublico);
             
             sceneChat.executejQuery(webViewChatSala.getEngine(), "$('#content').append(\'" + html + "\');");
              
-            sceneChat.executejQuery(webViewChatSala.getEngine(), "$(\"html, body\").animate({ scrollTop: $(document).height()-$(window).height() });");
+            sceneChat.executejQuery(webViewChatSala.getEngine(), "$(\"html, body\").animate({ scrollTop: $(document).height()-$(window).height() }, 100);");
         }
         });
         

@@ -5,6 +5,7 @@
  */
 package mensajes;
 
+import java.awt.Color;
 import java.io.Serializable;
 import modelo.Usuario;
 
@@ -38,6 +39,8 @@ public class MensajeChatPublico extends Mensaje implements Serializable{
     public void setUsuarioOrigen(Usuario usuarioOrigen) {
         this.usuarioOrigen = usuarioOrigen;
     }
+
+   
 
     
     
