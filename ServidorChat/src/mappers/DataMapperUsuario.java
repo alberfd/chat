@@ -32,7 +32,7 @@ public class DataMapperUsuario {
             // cambiar el usuario "root" y la clave "la_clave" por las
             // adecuadas a la base de datos que estemos usando.
             conexion = DriverManager.getConnection (
-                "jdbc:mysql://localhost/chat","root", "");
+                "jdbc:mysql://localhost/chat","root", "311205");
             
             
         }
@@ -80,7 +80,7 @@ public class DataMapperUsuario {
     
     public boolean insertaUsuario(Usuario usuario) throws SQLException{
         // Se crea un Statement, para realizar la consulta
-        PreparedStatement s = conexion.prepareStatement("INSERT INTO USUARIOS (NOMBRE_USUARIO, PASSWORD, EMAIL, BOL_ACTIVO,"
+        PreparedStatement s = conexion.prepareStatement("INSERT INTO usuarios (NOMBRE_USUARIO, PASSWORD, EMAIL, BOL_ACTIVO,"
                 + "TXT_HASH_CONFIRMACION) VALUES (?,?,?,?,?)");
         
         s.setString(1, usuario.getNombreUsuario());
@@ -100,7 +100,7 @@ public class DataMapperUsuario {
         
         // Se crea un Statement, para realizar la consulta
         PreparedStatement s = conexion.prepareStatement("SELECT CODIGO_USUARIO, NOMBRE_USUARIO, PASSWORD, EMAIL FROM " + 
-                "USUARIOS WHERE NOMBRE_USUARIO = ?");
+                "usuarios WHERE NOMBRE_USUARIO = ?");
         
         s.setString(1, nombreUsuario);
         

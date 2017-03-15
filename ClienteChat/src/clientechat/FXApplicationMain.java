@@ -50,7 +50,7 @@ public class FXApplicationMain extends Application implements Observer {
     
     @Override
     public void start(Stage primaryStage) throws IOException {
-        clientSocket = new Socket("127.0.0.1", portNumber);
+        clientSocket = new Socket("vps387314.ovh.net", portNumber);
         ois = new ObjectInputStream(clientSocket.getInputStream());
         oos = new ObjectOutputStream(clientSocket.getOutputStream());
         
@@ -61,7 +61,7 @@ public class FXApplicationMain extends Application implements Observer {
         controladorChat = new ControladorChat(sirvienteEscritor);
         
         sceneLogin = new SceneLogin(null, this, controladorUsuario);
-        sceneRegistro = new SceneRegistro(null, this);
+        sceneRegistro = new SceneRegistro(null, this, controladorUsuario);
         sceneChat = new SceneChat(null, this, controladorChat);
         
         
@@ -79,6 +79,7 @@ public class FXApplicationMain extends Application implements Observer {
         //asignamos las vistas a los controladores
         controladorUsuario.setSceneLogin(sceneLogin);
         controladorUsuario.setSceneChat(sceneChat);
+        controladorUsuario.setSceneRegistro(sceneRegistro);
         
         controladorChat.setSceneChat(sceneChat);
         

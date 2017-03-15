@@ -61,6 +61,7 @@ public class SirvienteEscritor implements Runnable {
                     oos.writeObject(mensaje);
                 } catch (IOException ex) {
                     Logger.getLogger(SirvienteEscritor.class.getName()).log(Level.SEVERE, null, ex);
+                    
                 }
              }
                 

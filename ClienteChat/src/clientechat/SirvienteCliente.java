@@ -71,6 +71,7 @@ public class SirvienteCliente extends Observable implements Runnable {
                 }else if(mensaje instanceof MensajeRegistroRespuesta){
                     MensajeRegistroRespuesta mensajeRegistroRespuesta = (MensajeRegistroRespuesta) mensaje;
                     
+                    controladorUsuario.procesaRegistroRespuesta(mensajeRegistroRespuesta);
   
                 }else if(mensaje instanceof MensajeUsuariosConectados){
                     MensajeUsuariosConectados mensajeUsuariosConectados = (MensajeUsuariosConectados) mensaje;

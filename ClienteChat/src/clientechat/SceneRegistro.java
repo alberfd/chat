@@ -5,6 +5,7 @@
  */
 package clientechat;
 
+import controladores.ControladorUsuario;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +35,8 @@ public class SceneRegistro extends Scene {
     
     FXApplicationMain app;
     
+    ControladorUsuario controladorUsuario;
+    
     GridPane gPaneMain;
     HBox hboxAcceder;
     
@@ -54,10 +57,12 @@ public class SceneRegistro extends Scene {
     Button buttonAcceder;
     
 
-    public SceneRegistro(Parent root, FXApplicationMain app) {
+    public SceneRegistro(Parent root, FXApplicationMain app, ControladorUsuario controladorUsuario) {
         super(new GridPane());
         
         this.app = app;
+        
+        this.controladorUsuario = controladorUsuario;
         
         start();
     }
@@ -167,11 +172,9 @@ public class SceneRegistro extends Scene {
         mensaje.setRepeatPassword(PasswordFieldRepeatPassword.getText());
                 
         
-        try {
-            app.getOos().writeObject(mensaje);
-        } catch (IOException ex) {
-            Logger.getLogger(SceneRegistro.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        controladorUsuario.enviaMensajeRegistro(mensaje);
+        
         
     }
     

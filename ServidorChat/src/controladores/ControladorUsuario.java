@@ -254,7 +254,7 @@ public class ControladorUsuario extends Controlador {
             message.setSubject("Activacion de cuenta");
             String contenidoEmail = 
             "Para activar su cuenta pulse sobre el siguiente enlace: <br>" +
-            "<a href=\"localhost/activacion.php?hash=" + usuario.getHashConfirmacion() +"\">Enlace</a>";
+            "<a href=\"http://vps387314.ovh.net/activacion.php?hash=" + usuario.getHashConfirmacion() +"\">Enlace</a>";
             message.setContent(contenidoEmail, "text/html");
 
             // Lo enviamos.

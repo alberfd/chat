@@ -7,6 +7,7 @@ package controladores;
 
 import clientechat.SceneChat;
 import clientechat.SceneLogin;
+import clientechat.SceneRegistro;
 import clientechat.SirvienteEscritor;
 import java.io.File;
 import javafx.scene.media.Media;
@@ -14,6 +15,8 @@ import javafx.scene.media.MediaPlayer;
 import mensajes.MensajeColorChat;
 import mensajes.MensajeLogin;
 import mensajes.MensajeLoginRespuesta;
+import mensajes.MensajeRegistro;
+import mensajes.MensajeRegistroRespuesta;
 import modelo.TipoRespuestaLogin;
 import modelo.Usuario;
 
@@ -28,6 +31,7 @@ public class ControladorUsuario extends Controlador {
     
     SceneLogin sceneLogin;
     SceneChat sceneChat;
+    SceneRegistro sceneRegistro;
     
     SirvienteEscritor sirvienteEscritor;
     
@@ -69,6 +73,16 @@ public class ControladorUsuario extends Controlador {
     public void setSceneChat(SceneChat sceneChat) {
         this.sceneChat = sceneChat;
     }
+
+    public SceneRegistro getSceneRegistro() {
+        return sceneRegistro;
+    }
+
+    public void setSceneRegistro(SceneRegistro sceneRegistro) {
+        this.sceneRegistro = sceneRegistro;
+    }
+    
+    
     
 
     public Usuario getUsuario() {
@@ -87,6 +101,14 @@ public class ControladorUsuario extends Controlador {
         //enviamos el mensaje
         sirvienteEscritor.insertaMensaje(mensajeLogin);
         
+    }
+    
+    public void procesaRegistroRespuesta(MensajeRegistroRespuesta mensaje){
+        sceneRegistro.mensajeRegistroRespuestaRecibido(mensaje);
+    }
+    
+    public void enviaMensajeRegistro(MensajeRegistro mensaje){
+        sirvienteEscritor.insertaMensaje(mensaje);
     }
     
     
